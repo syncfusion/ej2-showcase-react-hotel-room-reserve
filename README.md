@@ -1,2 +1,2 @@
-# ej2-showcase-react-hotel-room-reserve
-Sample
+# ej2-react-hotel-room-reserve
+ How to book available hotel rooms according to your chosen amenities
