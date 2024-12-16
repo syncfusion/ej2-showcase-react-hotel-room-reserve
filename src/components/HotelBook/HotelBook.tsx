@@ -703,7 +703,7 @@ function HotelBook() {
 
             printWindow.document.write('<div style="width: 100%; padding-top: 20px; text-align: center;">' + '******************************' + '</div>');
 
-            printWindow.document.write("<div style='font-size: 24px; font-weight: 800; padding: 10px; text-align: center;'>Thank you for booking the hotel from HoRoomtel!</div>");
+            printWindow.document.write("<div style='font-size: 24px; font-weight: 800; padding: 10px; text-align: center;'>Thank you for booking the hotel from Room!</div>");
 
             printWindow.document.write("<div style='margin-top: 30px;'>");
             printWindow.document.write("<div><span style='font-size: 20px; font-weight: 600;'>Room amenities: </span><span style='font-size: 20px;'>" + printInfo.current.HotelData.RoomFacility + ".</span></div>");
@@ -745,7 +745,7 @@ function HotelBook() {
             <div className='e-title-bar'>
                 {showHotels && <div className='e-menu-button-container'><span className='e-menu-button' onClick={menuClick}></span></div>}
                 <div className='e-title-text-container'>
-                    <span className='e-title-text'>Book My HoRoomtel</span>
+                    <span className='e-title-text'>Book My Room</span>
                 </div>
             </div>
             {showHotels ?
@@ -754,7 +754,7 @@ function HotelBook() {
                         <div className='e-side-bar-operation-container'>
                             <div className='e-side-bar-separator e-side-bar-title'>
                                 <div className='e-title-bar'>
-                                    <span className='e-title-text'>Book My HoRoomtel</span>
+                                    <span className='e-title-text'>Book My Room</span>
                                 </div>
                                 <div>
                                     <span className='e-side-bar-close-button' onClick={menuCloseClick}></span>
