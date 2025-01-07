@@ -18,7 +18,7 @@ import { FormValidator } from '@syncfusion/ej2-react-inputs';
 import { ChangeEventArgs, DropDownListComponent } from '@syncfusion/ej2-react-dropdowns';
 import { TreeViewComponent, CarouselComponent, SlideChangingEventArgs, FieldsSettingsModel } from '@syncfusion/ej2-react-navigations';
 
-import { MapsComponent, LayersDirective, LayerDirective, MarkersDirective, MarkerDirective, Marker, MapsTooltip } from '@syncfusion/ej2-react-maps';
+import { MapsComponent, LayersDirective, LayerDirective, MarkersDirective, MarkerDirective, Marker, MapsTooltip, DataLabel } from '@syncfusion/ej2-react-maps';
 import * as USA from './usa.json';
 
 import { DataManager, Query, Predicate } from '@syncfusion/ej2-data';
@@ -235,6 +235,20 @@ function HotelBook() {
         return argsLength >= 10;
     };
 
+    // This method calls for validating the first and last name input field in a custom way
+    const nameValidation = (args: { [key: string]: string }): boolean => {
+        // Regex to allow only letters and spaces
+        if (/^[A-Za-z\s]*$/.test(args.value)) {
+            return true;
+        }
+        return false;
+    };
+
+    // This method calls for validating the proof input field in a custom way
+    const proofValidation = (args: { [key: string]: string }): boolean => {
+        return ((args.element as unknown as { ej2_instances: object[]; }).ej2_instances[0] as UploaderComponent).filesData.length ? true : false;
+    };
+
     // This method calls for rendering the room price with discount and tax
     const renderRoomPrice = (selectedRoom: Hotel): void => {
         const price: number = selectedRoom.Price + (extraBed.current.value * selectedRoom.ExtraBedCost);
@@ -259,11 +273,11 @@ function HotelBook() {
             const options: FormValidatorModel = {
                 rules: {
                     firstname: {
-                        required: [true, '* Please enter your first name'],
+                        required: [nameValidation, '* Please enter your first name (only letters accept)'],
                         minLength: 3
                     },
                     lastname: {
-                        required: [true, '* Please enter your last name'],
+                        required: [nameValidation, '* Please enter your last name (only letters accept)'],
                         minLength: 3
                     },
                     email: {
@@ -287,6 +301,9 @@ function HotelBook() {
                     },
                     country: {
                         required: [true, '* Please enter your country'],
+                    },
+                    proof: {
+                        required: [proofValidation, '* Submit your proof'],
                     },
                 },
             };
@@ -354,20 +371,20 @@ function HotelBook() {
                                         <div>
                                             <span className='e-semi-bold-header-text'>{props.HotelName}</span>
                                         </div>
-                                        <div className='e-below-text-styler'>
+                                        <div className='normal-text-color'>
                                             <span className='e-address-text-styler'>{props.Address}</span>
-                                            <span className='e-map-text-spacer'>(<span className='e-map-text-styler' onClick={showMap}>Show on map</span>)</span>
+                                            <span className='e-map-text-spacer'><span className='e-map-text-styler e-semi-title-header-text' onClick={showMap}>(Show on map)</span></span>
                                         </div>
                                     </div>
                                     <div className='e-info-flex-width-applier'>
                                         <div>
-                                            <span className='e-semi-header-text'>Rating:</span>
+                                            <span className='e-semi-title-header-text'>Rating:</span>
                                         </div>
                                         <div className='e-flex-layout e-rating-reviews-container'>
                                             <div>
-                                                <RatingComponent value={props.Rating} readOnly={true} cssClass='e-custom-rating'></RatingComponent>
+                                                <RatingComponent value={props.Rating} readOnly={true} cssClass='e-custom-rating e-custom-rating-color'></RatingComponent>
                                             </div>
-                                            <div className='e-reviews-container'>
+                                            <div className='e-reviews-container normal-text-color'>
                                                 ({props.ReviewCount} reviews)
                                             </div>
                                         </div>
@@ -377,14 +394,14 @@ function HotelBook() {
                             </div>
                             <div className='e-row-template-separator'>
                                 <div className='e-flex-layout'>
-                                    <div className='e-info-flex-width-applier e-quote-styler'>
+                                    <div className='e-info-flex-width-applier e-semi-title-header-text'>
                                         {props.Description}
                                     </div>
                                     <div className='e-info-flex-width-applier'>
                                         <div>
-                                            <span className='e-semi-header-text'>Room Name:</span> {props.RoomName} ({props.Capacity} person)
+                                            <span className='e-semi-title-header-text'>Room Name:</span> <span className='e-semi-bold-title-header-text'>{props.RoomName}</span><span className='normal-text-color'> ({props.Capacity} person)</span>
                                         </div>
-                                        <div className='e-below-text-styler'>(Extra bed capacity: {props.ExtraBed} and per bed cost: ${props.ExtraBedCost})</div>
+                                        <div className='e-semi-title-header-text'>(Extra bed capacity: {props.ExtraBed} and per bed cost: ${props.ExtraBedCost})</div>
                                     </div>
 
                                 </div>
@@ -392,21 +409,21 @@ function HotelBook() {
                             <div className='e-row-template-separator'>
                                 <div className='e-flex-layout'>
                                     <div className='e-info-flex-width-applier'>
-                                        <span className='e-semi-header-text'>Amenities:</span>
+                                        <span className='e-semi-title-header-text'>Amenities:</span>
                                         <ChipListComponent cssClass='e-outline'>
                                             <ChipsDirective>
                                                 {hotelFacilityList.map((item, index) => (
-                                                    <ChipDirective key={index} text={item}></ChipDirective>
+                                                    <ChipDirective key={index} text={item} cssClass="e-info"></ChipDirective>
                                                 ))}
                                             </ChipsDirective>
                                         </ChipListComponent>
                                     </div>
                                     <div className='e-info-flex-width-applier'>
-                                        <span className='e-semi-header-text'>Room Amenities:</span>
+                                        <span className='e-semi-title-header-text'>Room Amenities:</span>
                                         <ChipListComponent cssClass='e-outline'>
                                             <ChipsDirective>
                                                 {roomFacilityList.map((item, index) => (
-                                                    <ChipDirective key={index} text={item}></ChipDirective>
+                                                    <ChipDirective key={index} text={item} cssClass="e-info"></ChipDirective>
                                                 ))}
                                             </ChipsDirective>
                                         </ChipListComponent>
@@ -422,7 +439,7 @@ function HotelBook() {
                                 <ChipListComponent cssClass='e-outline'>
                                     <ChipsDirective>
                                         {extrasList.map((item, index) => (
-                                            <ChipDirective key={index} text={item}></ChipDirective>
+                                            <ChipDirective key={index} text={item} cssClass="e-success"></ChipDirective>
                                         ))}
                                     </ChipsDirective>
                                 </ChipListComponent>
@@ -430,10 +447,10 @@ function HotelBook() {
                             <div className='e-book-spacer'></div>
                             <div className='e-price-info'>
                                 <div>
-                                    <span className='e-cost-line-through-styler'>${props.Price.toFixed(2)}</span>
+                                    <span className='e-cost-line-through-styler normal-hint-text-color'>${props.Price.toFixed(2)}</span>
                                     <span className='e-cost-styler'>${priceCollection.TaxedPrice}</span>
                                 </div>
-                                <div>
+                                <div className='normal-text-color'>
                                     includes {props.DiscountPercentage}% discount (-${priceCollection.DiscountAmount}) and {props.TaxPercentage}% tax (+${priceCollection.TaxAmount})
                                 </div>
                             </div>
@@ -791,10 +808,10 @@ function HotelBook() {
                             {memoizedHotelGrid}
                             <DialogComponent width='95%' height='95%' visible={showMapDialog} close={closeMap} isModal={true} target='.e-grid' header="Location" showCloseIcon={true}>
                                 <div className="dialogContent">
-                                    <MapsComponent ref={m => map.current = m}>
-                                        <Inject services={[Marker, MapsTooltip]} />
+                                    <MapsComponent ref={m => map.current = m} background='#111827' mapsArea={{ background: '#111827' }}>
+                                        <Inject services={[Marker, MapsTooltip, DataLabel]} />
                                         <LayersDirective>
-                                            <LayerDirective shapeData={USA} shapeSettings={{ fill: '#5cd65c' }}>
+                                            <LayerDirective shapeData={USA} shapeSettings={{ fill: '#E5E5E5' }} dataLabelSettings={{ visible: true, labelPath: 'iso_3166_2', smartLabelMode: 'Hide', textStyle: { color: 'black' } }}>
                                                 <MarkersDirective>
                                                     <MarkerDirective visible={true}
                                                         height={20}
@@ -881,9 +898,10 @@ function HotelBook() {
                                 </div>
 
                                 <div className='e-booking-details-separator'>
-                                    <div className='e-semi-header-text'>Upload ID proof (optional)</div>
+                                    <div className='e-semi-header-text'>Upload ID proof *</div>
                                     <div className='e-booking-details-separator'>
-                                        <UploaderComponent />
+                                        <UploaderComponent name='proof' data-msg-containerid="errorForProof" />
+                                        <div id="errorForProof" />
                                     </div>
                                 </div>
 
@@ -904,10 +922,10 @@ function HotelBook() {
                                 <div className='e-book-spacer'></div>
                                 <div className='e-price-info'>
                                     <div>
-                                        <span className='e-cost-line-through-styler' ref={e => lineThroughPriceText.current = e}></span>
+                                        <span className='e-cost-line-through-styler normal-hint-text-color' ref={e => lineThroughPriceText.current = e}></span>
                                         <span className='e-cost-styler' ref={e => taxedPriceText.current = e}></span>
                                     </div>
-                                    <div ref={e => priceStatementText.current = e}></div>
+                                    <div className='normal-text-color' ref={e => priceStatementText.current = e}></div>
                                 </div>
                                 <div className='e-book-button e-book-details-button'>
                                     <ButtonComponent cssClass='e-primary e-outline' onClick={bookRoom}>Book Room</ButtonComponent>
@@ -917,26 +935,26 @@ function HotelBook() {
                         </div>
                         <div className='e-hotel-details-container'>
                             <div className='e-header-text e-light-blue-border-bottom'>Information</div>
-                            <div className='e-hotel-details-side-bar-separator'><span className='e-semi-header-text'>Hotel Name: </span>{selectedRoom.HotelName}</div>
-                            <div className='e-info-flex-items-center-applier e-hotel-details-side-bar-separator'><span className='e-semi-header-text'>Rating: </span><RatingComponent value={selectedRoom.Rating} readOnly={true}></RatingComponent></div>
-                            <div className='e-hotel-details-side-bar-separator'><span className='e-semi-header-text'>Room Name: </span>{selectedRoom.RoomName}</div>
-                            <div className='e-hotel-details-side-bar-separator'><span className='e-semi-header-text'>Capacity: </span>{selectedRoom.Capacity} person</div>
+                            <div className='e-hotel-details-side-bar-separator'><span className='e-semi-title-header-text'>Hotel Name: </span><span className='e-semi-bold-header-text'>{selectedRoom.HotelName}</span></div>
+                            <div className='e-info-flex-items-center-applier e-hotel-details-side-bar-separator'><span className='e-semi-title-header-text'>Rating: </span><RatingComponent value={selectedRoom.Rating} readOnly={true} cssClass='e-custom-rating-color'></RatingComponent></div>
+                            <div className='e-hotel-details-side-bar-separator'><span className='e-semi-title-header-text'>Room Name: </span><span className='e-semi-bold-title-header-text'>{selectedRoom.RoomName}</span></div>
+                            <div className='e-hotel-details-side-bar-separator'><span className='e-semi-title-header-text'>Capacity: </span><span className='normal-text-color'>{selectedRoom.Capacity} person</span></div>
                             <div className='e-hotel-details-side-bar-separator'>
-                                <span className='e-semi-header-text'>Amenities:</span>
+                                <span className='e-semi-title-header-text'>Amenities:</span>
                                 <ChipListComponent cssClass='e-outline'>
                                     <ChipsDirective>
                                         {selectedRoom.HotelFacility.split(', ').map((item, index) => (
-                                            <ChipDirective key={index} text={item}></ChipDirective>
+                                            <ChipDirective key={index} text={item} cssClass="e-info"></ChipDirective>
                                         ))}
                                     </ChipsDirective>
                                 </ChipListComponent>
                             </div>
                             <div className='e-hotel-details-side-bar-separator'>
-                                <span className='e-semi-header-text'>Room Amenities:</span>
+                                <span className='e-semi-title-header-text'>Room Amenities:</span>
                                 <ChipListComponent cssClass='e-outline'>
                                     <ChipsDirective>
                                         {selectedRoom.RoomFacility.split(', ').map((item, index) => (
-                                            <ChipDirective key={index} text={item}></ChipDirective>
+                                            <ChipDirective key={index} text={item} cssClass="e-info"></ChipDirective>
                                         ))}
                                     </ChipsDirective>
                                 </ChipListComponent>
@@ -971,10 +989,10 @@ function HotelBook() {
                             <div className='e-header-text e-light-blue-border-bottom e-print-info-separator'>Room Information</div>
                             <GridComponent ref={g => hotelInfoGrid.current = g} width={'100%'} dataSource={[printInfo.current]} allowTextWrap={true}>
                                 <ColumnsDirective>
-                                    <ColumnDirective field='HotelData.HotelName' headerText='Hotel name' width={120} />
-                                    <ColumnDirective field='HotelData.RoomName' headerText='Room name' width={120} />
-                                    <ColumnDirective field='CheckIn' headerText='Check In date' format={{ type: 'date', format: 'dd/MM/yyyy' }} width={120} />
-                                    <ColumnDirective field='CheckOut' headerText='Check Out date' format={{ type: 'date', format: 'dd/MM/yyyy' }} width={120} />
+                                    <ColumnDirective field='HotelData.HotelName' headerText='Hotel name' width={120} customAttributes={{ class: 'e-grid-hotel-name' }} />
+                                    <ColumnDirective field='HotelData.RoomName' headerText='Room name' width={120} customAttributes={{ class: 'e-grid-room-name' }} />
+                                    <ColumnDirective field='CheckIn' headerText='Check In date' format={{ type: 'date', format: 'dd/MM/yyyy' }} width={120} customAttributes={{ class: 'e-grid-date' }} />
+                                    <ColumnDirective field='CheckOut' headerText='Check Out date' format={{ type: 'date', format: 'dd/MM/yyyy' }} width={120} customAttributes={{ class: 'e-grid-date' }} />
                                     <ColumnDirective field='Person' headerText='No of person' width={120} />
                                     <ColumnDirective field='ExtraBed' headerText='No of extra bed' width={120} />
                                     <ColumnDirective field='FinalPrice' headerText='Price' type='number' format='C2' width={120} />
