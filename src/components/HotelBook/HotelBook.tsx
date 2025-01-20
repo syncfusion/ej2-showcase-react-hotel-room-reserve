@@ -9,8 +9,8 @@ import {
     Column,
     PrintEventArgs
 } from '@syncfusion/ej2-react-grids';
-import { closest } from '@syncfusion/ej2-base';
-import { DateRangePickerComponent, RangeEventArgs } from '@syncfusion/ej2-react-calendars';
+import { closest, isNullOrUndefined } from '@syncfusion/ej2-base';
+import { DateRangePickerComponent, RangeEventArgs, RenderDayCellEventArgs } from '@syncfusion/ej2-react-calendars';
 import { ButtonComponent, ChipListComponent, ChipsDirective, ChipDirective } from '@syncfusion/ej2-react-buttons';
 import { DialogComponent } from '@syncfusion/ej2-react-popups';
 import { NumericTextBoxComponent, TextBoxComponent, RatingComponent, SliderComponent, UploaderComponent, MaskedTextBoxComponent, SliderChangeEventArgs, FormValidatorModel } from '@syncfusion/ej2-react-inputs';
@@ -256,7 +256,7 @@ function HotelBook() {
         priceCollectionData.current = priceCollection;
         lineThroughPriceText.current.innerText = '$' + price.toFixed(2);
         taxedPriceText.current.innerText = '$' + priceCollection.TaxedPrice;
-        priceStatementText.current.innerText = 'includes ' + selectedRoom.DiscountPercentage + '% discount (-$' + priceCollection.DiscountAmount + ') and ' + selectedRoom.TaxPercentage + '% tax (+$' + priceCollection.TaxAmount + ')';
+        priceStatementText.current.innerHTML = 'includes ' + selectedRoom.DiscountPercentage + '% discount (<span class="e-discount-style">-$' + priceCollection.DiscountAmount + '</span>) and ' + selectedRoom.TaxPercentage + '% tax (<span class="e-tax-style">+$' + priceCollection.TaxAmount + '</span>)';
     }
 
     // This method calls for navigate the user to booking page and rendering the input field with form validator
@@ -373,7 +373,7 @@ function HotelBook() {
                                         </div>
                                         <div className='normal-text-color'>
                                             <span className='e-address-text-styler'>{props.Address}</span>
-                                            <span className='e-map-text-spacer'><span className='e-map-text-styler e-semi-title-header-text' onClick={showMap}>(Show on map)</span></span>
+                                            <span className='e-map-text-spacer'><span className='e-map-text-styler e-semi-title-header-text' onClick={showMap}><img src="./images/map.png" className="e-map-img" alt="Map" title='Show on map' /></span></span>
                                         </div>
                                     </div>
                                     <div className='e-info-flex-width-applier'>
@@ -394,14 +394,14 @@ function HotelBook() {
                             </div>
                             <div className='e-row-template-separator'>
                                 <div className='e-flex-layout'>
-                                    <div className='e-info-flex-width-applier e-semi-title-header-text'>
+                                    <div className='e-info-flex-width-applier normal-text-color'>
                                         {props.Description}
                                     </div>
                                     <div className='e-info-flex-width-applier'>
                                         <div>
                                             <span className='e-semi-title-header-text'>Room Name:</span> <span className='e-semi-bold-title-header-text'>{props.RoomName}</span><span className='normal-text-color'> ({props.Capacity} person)</span>
                                         </div>
-                                        <div className='e-semi-title-header-text'>(Extra bed capacity: {props.ExtraBed} and per bed cost: ${props.ExtraBedCost})</div>
+                                        <div className='e-semi-title-header-text normal-hint-text-color'>(Extra bed capacity: {props.ExtraBed} and per bed cost: ${props.ExtraBedCost})</div>
                                     </div>
 
                                 </div>
@@ -450,8 +450,8 @@ function HotelBook() {
                                     <span className='e-cost-line-through-styler normal-hint-text-color'>${props.Price.toFixed(2)}</span>
                                     <span className='e-cost-styler'>${priceCollection.TaxedPrice}</span>
                                 </div>
-                                <div className='normal-text-color'>
-                                    includes {props.DiscountPercentage}% discount (-${priceCollection.DiscountAmount}) and {props.TaxPercentage}% tax (+${priceCollection.TaxAmount})
+                                <div className='normal-text-color e-semi-title-header-text'>
+                                    includes {props.DiscountPercentage}% discount (<span className='e-discount-style'>-${priceCollection.DiscountAmount}</span>) and {props.TaxPercentage}% tax (<span className='e-tax-style'>+${priceCollection.TaxAmount}</span>)
                                 </div>
                             </div>
                         </div>
@@ -495,11 +495,8 @@ function HotelBook() {
             <GridComponent
                 ref={g => hotelGrid = g}
                 dataSource={hotelGridData}
-                height={620}
+                height={'100%'}
                 allowPaging={true}
-                pageSettings={{
-                    pageSize: 10, pageSizes: true
-                }}
                 created={hotelGridCreated}
                 rowTemplate={renderHotelGridRow}
                 emptyRecordTemplate={renderHotelGridEmptyRecordRow}
@@ -512,12 +509,38 @@ function HotelBook() {
         );
     }, [hotelGridData]);
 
+    const renderDayCell = (args: RenderDayCellEventArgs): void => {
+        if (!isNullOrUndefined(args.isOutOfRange) && !args.isOutOfRange) {
+            const bookedDate: CheckInOut[] = [];
+            hotelGridData.map((data: Hotel) => {
+                data.CheckInOut.map((date: CheckInOut) => {
+                    bookedDate.push(date);
+                });
+            });
+            const roomBooked = bookedDate.find(({ CheckIn, CheckOut }: CheckInOut) => {
+                CheckIn.setHours(0, 0, 0, 0);
+                CheckOut.setHours(0, 0, 0, 0);
+                if (args.date >= CheckIn && args.date <= CheckOut) {
+                    return true;
+                }
+                return false;
+            });
+            if (roomBooked) {
+                args.element.classList.add('e-date-cell-orange');
+            } else {
+                args.element.classList.add('e-date-cell-green');
+            }
+        }
+    }
+
     // Memoized the check in, check out data picker to prevent unnecessary rerenders
     const memoizedCheckInOutDate: React.JSX.Element = React.useMemo((): React.JSX.Element => {
         return (
-            <DateRangePickerComponent ref={dr => checkInOutDate.current = dr} min={defaultCheckInDate} startDate={defaultCheckInDate} endDate={defaultCheckOutDate} change={checkInOutDateChange} />
+            <DateRangePickerComponent ref={dr => checkInOutDate.current = dr} min={defaultCheckInDate} startDate={defaultCheckInDate} endDate={defaultCheckOutDate} change={checkInOutDateChange}
+                renderDayCell={renderDayCell}
+            />
         );
-    }, []);
+    }, [hotelGridData]);
 
     // This method calls for rendering the hotel images in a custom way in carousel using itemTemplate feature
     const hotelImagesItemTemplate = (props: Record<string, string | number>): React.JSX.Element => {
@@ -538,6 +561,8 @@ function HotelBook() {
         if (formValidator.current.validate()) {
             const dataIndex: number = hotelData.current.findIndex(data => data.HotelID === selectedRoom.HotelID && data.RoomID === selectedRoom.RoomID);
             hotelData.current[dataIndex].CheckInOut.push({ CheckIn: checkInDate.current, CheckOut: checkOutDate.current });
+            checkInDate.current = defaultCheckInDate;
+            checkOutDate.current = defaultCheckOutDate;
             setShowHotels(true);
             printInfo.current = {
                 FirstName: firstName.current.value,
@@ -565,6 +590,9 @@ function HotelBook() {
     // This method calls for opening the menu
     const menuClick = (): void => {
         menu.current.style.display = 'block';
+        setTimeout(() => {
+            priceRange.current.refresh();
+        }, 10);
     }
 
     // This method calls for closing the menu
@@ -660,58 +688,69 @@ function HotelBook() {
 
             printWindow.document.write("</div>");
 
+            printWindow.document.write('<div style="width: 100%; padding-top: 20px; text-align: center;">' + '******************************' + '</div>');
+
             printWindow.document.write("<table style='width: 100%; margin-top: 30px;'>");
 
             printWindow.document.write("<tr>");
-            printWindow.document.write("<td style='font-size: 24px; font-weight: 800; padding: 10px;'>");
+            printWindow.document.write("<td style='font-size: 24px; font-weight: 800; padding: 10px; text-align: center;'>");
             printWindow.document.write("Description");
             printWindow.document.write("</td>");
-            printWindow.document.write("<td style='font-size: 24px; font-weight: 800; padding: 10px;'>");
+            printWindow.document.write("<td style='font-size: 24px; font-weight: 800; padding: 10px; text-align: center;'>");
             printWindow.document.write("Price");
             printWindow.document.write("</td>");
             printWindow.document.write("</tr>");
 
             printWindow.document.write("<tr>");
-            printWindow.document.write("<td style='font-size: 24px; padding: 10px;'>");
+            printWindow.document.write("<td style='font-size: 24px; padding: 10px; text-align: center;'>");
             printWindow.document.write("Room cost");
             printWindow.document.write("</td>");
-            printWindow.document.write("<td style='font-size: 24px; padding: 10px;'>");
+            printWindow.document.write("<td style='font-size: 24px; padding: 10px; text-align: center;'>");
             printWindow.document.write("+$" + printInfo.current.HotelData.Price);
             printWindow.document.write("</td>");
             printWindow.document.write("</tr>");
 
             printWindow.document.write("<tr>");
-            printWindow.document.write("<td style='font-size: 24px; padding: 10px;'>");
+            printWindow.document.write("<td style='font-size: 24px; padding: 10px; text-align: center;'>");
             printWindow.document.write("Extra bed cost ( " + printInfo.current.HotelData.ExtraBedCost + " * " + printInfo.current.ExtraBed + " )");
             printWindow.document.write("</td>");
-            printWindow.document.write("<td style='font-size: 24px; padding: 10px;'>");
+            printWindow.document.write("<td style='font-size: 24px; padding: 10px; text-align: center;'>");
             printWindow.document.write("+$" + (printInfo.current.HotelData.ExtraBedCost * printInfo.current.ExtraBed));
             printWindow.document.write("</td>");
             printWindow.document.write("</tr>");
 
             printWindow.document.write("<tr>");
-            printWindow.document.write("<td style='font-size: 24px; padding: 10px;'>");
+            printWindow.document.write("<td style='font-size: 24px; padding: 10px; text-align: center;'>");
             printWindow.document.write("Discount " + printInfo.current.HotelData.DiscountPercentage + "%");
             printWindow.document.write("</td>");
-            printWindow.document.write("<td style='font-size: 24px; padding: 10px;'>");
+            printWindow.document.write("<td style='font-size: 24px; padding: 10px; text-align: center;'>");
             printWindow.document.write("-$" + printInfo.current.PriceCollection.DiscountAmount);
             printWindow.document.write("</td>");
             printWindow.document.write("</tr>");
 
             printWindow.document.write("<tr>");
-            printWindow.document.write("<td style='font-size: 24px; padding: 10px;'>");
+            printWindow.document.write("<td style='font-size: 24px; padding: 10px; text-align: center;'>");
             printWindow.document.write("Tax " + printInfo.current.HotelData.TaxPercentage + "%");
             printWindow.document.write("</td>");
-            printWindow.document.write("<td style='font-size: 24px; padding: 10px;'>");
+            printWindow.document.write("<td style='font-size: 24px; padding: 10px; text-align: center;'>");
             printWindow.document.write("+$" + printInfo.current.PriceCollection.TaxAmount);
             printWindow.document.write("</td>");
             printWindow.document.write("</tr>");
 
             printWindow.document.write("<tr>");
-            printWindow.document.write("<td style='font-size: 22px; font-weight: 800; padding: 10px;'>");
+            printWindow.document.write("<td style='font-size: 24px; padding: 10px; text-align: center;'>");
+            printWindow.document.write("------------------------------------");
+            printWindow.document.write("</td>");
+            printWindow.document.write("<td style='font-size: 24px; padding: 10px; text-align: center;'>");
+            printWindow.document.write("-------------------------");
+            printWindow.document.write("</td>");
+            printWindow.document.write("</tr>");
+
+            printWindow.document.write("<tr>");
+            printWindow.document.write("<td style='font-size: 22px; font-weight: 800; padding: 10px; text-align: center;'>");
             printWindow.document.write("Final price");
             printWindow.document.write("</td>");
-            printWindow.document.write("<td style='font-size: 22px; font-weight: 800; padding: 10px;'>");
+            printWindow.document.write("<td style='font-size: 22px; font-weight: 800; padding: 10px; text-align: center;'>");
             printWindow.document.write("$" + printInfo.current.PriceCollection.TaxedPrice);
             printWindow.document.write("</td>");
             printWindow.document.write("</tr>");
@@ -762,7 +801,11 @@ function HotelBook() {
             <div className='e-title-bar'>
                 {showHotels && <div className='e-menu-button-container'><span className='e-menu-button' onClick={menuClick}></span></div>}
                 <div className='e-title-text-container'>
-                    <span className='e-title-text'>Book My Room</span>
+                    <span className='e-title-text'>
+                        <span className='e-title-text-book'>Book</span>
+                        <span className='e-title-text-my'> My</span>
+                        <span className='e-title-text-room'>Room</span>
+                    </span>
                 </div>
             </div>
             {showHotels ?
@@ -771,7 +814,11 @@ function HotelBook() {
                         <div className='e-side-bar-operation-container'>
                             <div className='e-side-bar-separator e-side-bar-title'>
                                 <div className='e-title-bar'>
-                                    <span className='e-title-text'>Book My Room</span>
+                                    <span className='e-title-text'>
+                                        <span className='e-title-text-book'>Book</span>
+                                        <span className='e-title-text-my'> My</span>
+                                        <span className='e-title-text-room'>Room</span>
+                                    </span>
                                 </div>
                                 <div>
                                     <span className='e-side-bar-close-button' onClick={menuCloseClick}></span>
@@ -806,12 +853,12 @@ function HotelBook() {
                     <div className='e-app-container'>
                         <div className='e-grid-container'>
                             {memoizedHotelGrid}
-                            <DialogComponent width='95%' height='95%' visible={showMapDialog} close={closeMap} isModal={true} target='.e-grid' header="Location" showCloseIcon={true}>
+                            <DialogComponent width='95%' height='95%' visible={showMapDialog} close={closeMap} isModal={true} target='.e-grid' header="Location" showCloseIcon={true} cssClass='e-dialog-map'>
                                 <div className="dialogContent">
-                                    <MapsComponent ref={m => map.current = m} background='#111827' mapsArea={{ background: '#111827' }}>
+                                    <MapsComponent ref={m => map.current = m} background='#ffffff' mapsArea={{ background: '#ffffff' }}>
                                         <Inject services={[Marker, MapsTooltip, DataLabel]} />
                                         <LayersDirective>
-                                            <LayerDirective shapeData={USA} shapeSettings={{ fill: '#E5E5E5' }} dataLabelSettings={{ visible: true, labelPath: 'iso_3166_2', smartLabelMode: 'Hide', textStyle: { color: 'black' } }}>
+                                            <LayerDirective shapeData={USA} shapeSettings={{ fill: '#10b981' }} dataLabelSettings={{ visible: true, labelPath: 'iso_3166_2', smartLabelMode: 'Hide', textStyle: { color: 'black' } }}>
                                                 <MarkersDirective>
                                                     <MarkerDirective visible={true}
                                                         height={20}
@@ -900,7 +947,11 @@ function HotelBook() {
                                 <div className='e-booking-details-separator'>
                                     <div className='e-semi-header-text'>Upload ID proof *</div>
                                     <div className='e-booking-details-separator'>
-                                        <UploaderComponent name='proof' data-msg-containerid="errorForProof" />
+                                        <UploaderComponent name='proof' data-msg-containerid="errorForProof" selected={(args) => {
+                                            setTimeout(() => {
+                                                formValidator.current.validate('proof');
+                                            }, 0);
+                                        }} />
                                         <div id="errorForProof" />
                                     </div>
                                 </div>
@@ -925,7 +976,7 @@ function HotelBook() {
                                         <span className='e-cost-line-through-styler normal-hint-text-color' ref={e => lineThroughPriceText.current = e}></span>
                                         <span className='e-cost-styler' ref={e => taxedPriceText.current = e}></span>
                                     </div>
-                                    <div className='normal-text-color' ref={e => priceStatementText.current = e}></div>
+                                    <div className='normal-text-color e-semi-title-header-text' ref={e => priceStatementText.current = e}></div>
                                 </div>
                                 <div className='e-book-button e-book-details-button'>
                                     <ButtonComponent cssClass='e-primary e-outline' onClick={bookRoom}>Book Room</ButtonComponent>
