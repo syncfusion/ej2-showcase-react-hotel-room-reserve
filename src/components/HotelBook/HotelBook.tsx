@@ -256,7 +256,7 @@ function HotelBook() {
         priceCollectionData.current = priceCollection;
         lineThroughPriceText.current.innerText = '$' + price.toFixed(2);
         taxedPriceText.current.innerText = '$' + priceCollection.TaxedPrice;
-        priceStatementText.current.innerHTML = 'includes ' + selectedRoom.DiscountPercentage + '% discount (<span class="e-discount-style">-$' + priceCollection.DiscountAmount + '</span>) and ' + selectedRoom.TaxPercentage + '% tax (<span class="e-tax-style">+$' + priceCollection.TaxAmount + '</span>)';
+        priceStatementText.current.innerHTML = 'Includes ' + selectedRoom.DiscountPercentage + '% discount (<span class="e-discount-style">-$' + priceCollection.DiscountAmount + '</span>) and ' + selectedRoom.TaxPercentage + '% tax (<span class="e-tax-style">+$' + priceCollection.TaxAmount + '</span>)';
     }
 
     // This method calls for navigate the user to booking page and rendering the input field with form validator
@@ -413,7 +413,7 @@ function HotelBook() {
                                         <ChipListComponent cssClass='e-outline'>
                                             <ChipsDirective>
                                                 {hotelFacilityList.map((item, index) => (
-                                                    <ChipDirective key={index} text={item} cssClass="e-info"></ChipDirective>
+                                                    <ChipDirective key={index} text={item} cssClass="e-info" enabled={false}></ChipDirective>
                                                 ))}
                                             </ChipsDirective>
                                         </ChipListComponent>
@@ -423,7 +423,7 @@ function HotelBook() {
                                         <ChipListComponent cssClass='e-outline'>
                                             <ChipsDirective>
                                                 {roomFacilityList.map((item, index) => (
-                                                    <ChipDirective key={index} text={item} cssClass="e-info"></ChipDirective>
+                                                    <ChipDirective key={index} text={item} cssClass="e-info" enabled={false}></ChipDirective>
                                                 ))}
                                             </ChipsDirective>
                                         </ChipListComponent>
@@ -439,7 +439,7 @@ function HotelBook() {
                                 <ChipListComponent cssClass='e-outline'>
                                     <ChipsDirective>
                                         {extrasList.map((item, index) => (
-                                            <ChipDirective key={index} text={item} cssClass="e-success"></ChipDirective>
+                                            <ChipDirective key={index} text={item} cssClass="e-success" enabled={false}></ChipDirective>
                                         ))}
                                     </ChipsDirective>
                                 </ChipListComponent>
@@ -448,10 +448,11 @@ function HotelBook() {
                             <div className='e-price-info'>
                                 <div>
                                     <span className='e-cost-line-through-styler normal-hint-text-color'>${props.Price.toFixed(2)}</span>
+                                    <span className='e-arrow-styler normal-hint-text-color'>&#8594;</span>
                                     <span className='e-cost-styler'>${priceCollection.TaxedPrice}</span>
                                 </div>
                                 <div className='normal-text-color e-semi-title-header-text'>
-                                    includes {props.DiscountPercentage}% discount (<span className='e-discount-style'>-${priceCollection.DiscountAmount}</span>) and {props.TaxPercentage}% tax (<span className='e-tax-style'>+${priceCollection.TaxAmount}</span>)
+                                    Includes {props.DiscountPercentage}% discount (<span className='e-discount-style'>-${priceCollection.DiscountAmount}</span>) and {props.TaxPercentage}% tax (<span className='e-tax-style'>+${priceCollection.TaxAmount}</span>)
                                 </div>
                             </div>
                         </div>
@@ -974,6 +975,7 @@ function HotelBook() {
                                 <div className='e-price-info'>
                                     <div>
                                         <span className='e-cost-line-through-styler normal-hint-text-color' ref={e => lineThroughPriceText.current = e}></span>
+                                        <span className='e-arrow-styler normal-hint-text-color'>&#8594;</span>
                                         <span className='e-cost-styler' ref={e => taxedPriceText.current = e}></span>
                                     </div>
                                     <div className='normal-text-color e-semi-title-header-text' ref={e => priceStatementText.current = e}></div>
@@ -995,7 +997,7 @@ function HotelBook() {
                                 <ChipListComponent cssClass='e-outline'>
                                     <ChipsDirective>
                                         {selectedRoom.HotelFacility.split(', ').map((item, index) => (
-                                            <ChipDirective key={index} text={item} cssClass="e-info"></ChipDirective>
+                                            <ChipDirective key={index} text={item} cssClass="e-info" enabled={false}></ChipDirective>
                                         ))}
                                     </ChipsDirective>
                                 </ChipListComponent>
@@ -1005,7 +1007,7 @@ function HotelBook() {
                                 <ChipListComponent cssClass='e-outline'>
                                     <ChipsDirective>
                                         {selectedRoom.RoomFacility.split(', ').map((item, index) => (
-                                            <ChipDirective key={index} text={item} cssClass="e-info"></ChipDirective>
+                                            <ChipDirective key={index} text={item} cssClass="e-info" enabled={false}></ChipDirective>
                                         ))}
                                     </ChipsDirective>
                                 </ChipListComponent>
