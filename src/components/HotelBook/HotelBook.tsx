@@ -359,7 +359,6 @@ function HotelBook() {
         return (
             <tr className='templateRow primary-text-style'>
                 <td className='e-rowtemplate-border-applier'>
-                    {!isRoomAvailable && <div className='e-room-not-available-cover'></div>}
                     <div className='e-flex-layout e-img-info-container'>
                         <div className='e-img-container'>
                             <img src={src} alt={props.RoomImgID} className='e-img' />
@@ -371,16 +370,16 @@ function HotelBook() {
                                         <div>
                                             <span className='e-semi-bold-header-text'>{props.HotelName}</span>
                                         </div>
-                                        <div className='normal-text-color'>
-                                            <span className='e-address-text-styler'>{props.Address}</span>
-                                            <span className='e-map-text-spacer'><span className='e-map-text-styler e-semi-title-header-text' onClick={showMap}><img src="./images/map.png" className="e-map-img" alt="Map" title='Show on map' /></span></span>
+                                        <div className='normal-text-color e-flex-layout e-margin-top-10'>
+                                            <span className='e-map-text-styler e-semi-title-header-text' onClick={showMap}><img src="./images/map.png" className="e-map-img" alt="Map" title='Show on map' /></span>
+                                            <span className='e-address-text-styler e-map-text-spacer'>{props.Address}</span>
                                         </div>
                                     </div>
                                     <div className='e-info-flex-width-applier'>
                                         <div>
                                             <span className='e-semi-title-header-text'>Rating:</span>
                                         </div>
-                                        <div className='e-flex-layout e-rating-reviews-container'>
+                                        <div className='e-flex-layout e-rating-reviews-container e-margin-top-10'>
                                             <div>
                                                 <RatingComponent value={props.Rating} readOnly={true} cssClass='e-custom-rating e-custom-rating-color'></RatingComponent>
                                             </div>
@@ -457,7 +456,7 @@ function HotelBook() {
                             </div>
                         </div>
                         <div className='e-book-spacer'></div>
-                        <div className='e-book-button'>
+                        <div className='e-book-button e-padding-right'>
                             <ButtonComponent cssClass='e-primary e-outline' onClick={goToRoomBookingPage} disabled={!isRoomAvailable}>{!isRoomAvailable ? "Room's not available" : "Book Room"}</ButtonComponent>
                         </div>
                     </div>
@@ -484,7 +483,7 @@ function HotelBook() {
             <div className='primary-text-style'>
                 <div className='e-header-text'>{args.headerText}</div>
                 <div className='e-operation-container'>
-                    <DropDownListComponent ref={dd => sortOptionContainer.current = dd} width={160} dataSource={sortOption} fields={{ text: 'value', value: 'key' }} value={sortOptionValue.current} change={sortOptionsChange} />
+                    <DropDownListComponent ref={(dd: DropDownListComponent) => sortOptionContainer.current = dd} width={160} dataSource={sortOption} fields={{ text: 'value', value: 'key' }} value={sortOptionValue.current} change={sortOptionsChange} />
                 </div>
             </div>
         );
@@ -494,7 +493,7 @@ function HotelBook() {
     const memoizedHotelGrid: React.JSX.Element = React.useMemo((): React.JSX.Element => {
         return (
             <GridComponent
-                ref={g => hotelGrid = g}
+                ref={(g: GridComponent) => hotelGrid = g}
                 dataSource={hotelGridData}
                 height={'100%'}
                 allowPaging={true}
@@ -537,7 +536,7 @@ function HotelBook() {
     // Memoized the check in, check out data picker to prevent unnecessary rerenders
     const memoizedCheckInOutDate: React.JSX.Element = React.useMemo((): React.JSX.Element => {
         return (
-            <DateRangePickerComponent ref={dr => checkInOutDate.current = dr} min={defaultCheckInDate} startDate={defaultCheckInDate} endDate={defaultCheckOutDate} change={checkInOutDateChange}
+            <DateRangePickerComponent ref={(dr: DateRangePickerComponent) => checkInOutDate.current = dr} min={defaultCheckInDate} startDate={defaultCheckInDate} endDate={defaultCheckOutDate} change={checkInOutDateChange}
                 renderDayCell={renderDayCell}
             />
         );
@@ -838,16 +837,17 @@ function HotelBook() {
                                     Price Range: $<span ref={e => minPriceText.current = e}>{defaultMinPrice}</span> to $<span ref={e => maxPriceText.current = e}>{defaultMaxPrice}</span>
                                 </div>
                                 <div className='e-slidercomponent-container'>
-                                    <SliderComponent ref={p => priceRange.current = p} type='Range' value={[defaultMinPrice, defaultMaxPrice]} min={defaultMinPrice} max={defaultMaxPrice} tooltip={{ placement: 'After', isVisible: true, showOn: 'Focus' }} changed={priceRangeChanged} />
+                                    <SliderComponent ref={(p: SliderComponent) => priceRange.current = p} type='Range' value={[defaultMinPrice, defaultMaxPrice]} min={defaultMinPrice} max={defaultMaxPrice} tooltip={{ placement: 'After', isVisible: true, format: 'C2' }}
+                                        ticks={{ placement: 'After', format: 'C2', largeStep: 400, smallStep: 100, showSmallTicks: true }} changed={priceRangeChanged} />
                                 </div>
                             </div>
                             <div className='e-line-separator'></div>
                             <div className='e-side-bar-treeview-separator'>
-                                <TreeViewComponent ref={a => hotelAmenities.current = a} fields={hotelAmenitiesField} showCheckBox={true} nodeChecked={amenitiesNodeChecked} />
+                                <TreeViewComponent ref={(a: TreeViewComponent) => hotelAmenities.current = a} id="hotelamenities" fields={hotelAmenitiesField} showCheckBox={true} nodeChecked={amenitiesNodeChecked} />
                             </div>
                             <div className='e-line-separator'></div>
                             <div className='e-side-bar-treeview-separator'>
-                                <TreeViewComponent ref={r => roomAmenities.current = r} fields={roomAmenitiesField} showCheckBox={true} nodeChecked={amenitiesNodeChecked} />
+                                <TreeViewComponent ref={(r: TreeViewComponent) => roomAmenities.current = r} id="roomamenities" fields={roomAmenitiesField} showCheckBox={true} nodeChecked={amenitiesNodeChecked} />
                             </div>
                         </div>
                     </div>
@@ -856,7 +856,7 @@ function HotelBook() {
                             {memoizedHotelGrid}
                             <DialogComponent width='95%' height='95%' visible={showMapDialog} close={closeMap} isModal={true} target='.e-grid' header="Location" showCloseIcon={true} cssClass='e-dialog-map'>
                                 <div className="dialogContent">
-                                    <MapsComponent ref={m => map.current = m} background='#ffffff' mapsArea={{ background: '#ffffff' }}>
+                                    <MapsComponent ref={(m: MapsComponent) => map.current = m} background='#ffffff' mapsArea={{ background: '#ffffff' }} height='100%'>
                                         <Inject services={[Marker, MapsTooltip, DataLabel]} />
                                         <LayersDirective>
                                             <LayerDirective shapeData={USA} shapeSettings={{ fill: '#10b981' }} dataLabelSettings={{ visible: true, labelPath: 'iso_3166_2', smartLabelMode: 'Hide', textStyle: { color: 'black' } }}>
@@ -901,21 +901,21 @@ function HotelBook() {
                                     <div className='e-semi-header-text'>Personal information</div>
                                     <div className='e-flex-layout e-booking-details-separator'>
                                         <div className='e-info-flex-width-applier'>
-                                            <TextBoxComponent ref={f => firstName.current = f} width='75%' placeholder="First name *" name='firstname' floatLabelType="Always" type="text" data-msg-containerid="errorForFirstName" />
+                                            <TextBoxComponent ref={(f: TextBoxComponent) => firstName.current = f} width='95%' placeholder="First name *" name='firstname' floatLabelType="Always" type="text" data-msg-containerid="errorForFirstName" />
                                             <div id="errorForFirstName" />
                                         </div>
                                         <div className='e-info-flex-width-applier'>
-                                            <TextBoxComponent ref={l => lastName.current = l} width='75%' placeholder="Last name *" name='lastname' floatLabelType="Always" type="text" data-msg-containerid="errorForLastName" />
+                                            <TextBoxComponent ref={(l: TextBoxComponent) => lastName.current = l} width='95%' placeholder="Last name *" name='lastname' floatLabelType="Always" type="text" data-msg-containerid="errorForLastName" />
                                             <div id="errorForLastName" />
                                         </div>
                                     </div>
                                     <div className='e-flex-layout e-booking-details-separator'>
                                         <div className='e-info-flex-width-applier'>
-                                            <TextBoxComponent ref={e => email.current = e} width='75%' placeholder="Email *" name='email' floatLabelType="Always" type='email' data-msg-containerid="errorForEmail" />
+                                            <TextBoxComponent ref={(e: TextBoxComponent) => email.current = e} width='95%' placeholder="Email *" name='email' floatLabelType="Always" type='email' data-msg-containerid="errorForEmail" />
                                             <div id="errorForEmail" />
                                         </div>
                                         <div className='e-info-flex-width-applier'>
-                                            <MaskedTextBoxComponent ref={p => phno.current = p} width='75%' mask="(999) 999-9999" placeholder="Phone number *" name='phno' floatLabelType='Always' />
+                                            <MaskedTextBoxComponent ref={(p: MaskedTextBoxComponent) => phno.current = p} width='95%' mask="(999) 999-9999" placeholder="Phone number *" name='phno' floatLabelType='Always' />
                                             <label className='e-error' htmlFor='phno' />
                                         </div>
                                     </div>
@@ -925,21 +925,21 @@ function HotelBook() {
                                     <div className='e-semi-header-text'>Current address</div>
                                     <div className='e-flex-layout e-booking-details-separator'>
                                         <div className='e-info-flex-width-applier'>
-                                            <TextBoxComponent ref={a => address.current = a} width='75%' placeholder="Address *" name='address' floatLabelType="Always" type="text" data-msg-containerid="errorForAddress" />
+                                            <TextBoxComponent ref={(a: TextBoxComponent) => address.current = a} width='95%' placeholder="Address *" name='address' floatLabelType="Always" type="text" data-msg-containerid="errorForAddress" />
                                             <div id="errorForAddress" />
                                         </div>
                                         <div className='e-info-flex-width-applier'>
-                                            <TextBoxComponent ref={c => city.current = c} width='75%' placeholder="City *" name='city' floatLabelType="Always" type="text" data-msg-containerid="errorForCity" />
+                                            <TextBoxComponent ref={(c: TextBoxComponent) => city.current = c} width='95%' placeholder="City *" name='city' floatLabelType="Always" type="text" data-msg-containerid="errorForCity" />
                                             <div id="errorForCity" />
                                         </div>
                                     </div>
                                     <div className='e-flex-layout e-booking-details-separator'>
                                         <div className='e-info-flex-width-applier'>
-                                            <TextBoxComponent ref={c => code.current = c} width='75%' placeholder="Zip/Post code *" name='code' floatLabelType="Always" type="number" data-msg-containerid="errorForCode" />
+                                            <TextBoxComponent ref={(c: TextBoxComponent) => code.current = c} width='95%' placeholder="Zip/Post code *" name='code' floatLabelType="Always" type="number" data-msg-containerid="errorForCode" />
                                             <div id="errorForCode" />
                                         </div>
                                         <div className='e-info-flex-width-applier'>
-                                            <DropDownListComponent ref={c => country.current = c} width='75%' placeholder='Country/Region *' name='country' floatLabelType="Always" dataSource={['USA']} value="USA" data-msg-containerid="errorForCountry" />
+                                            <DropDownListComponent ref={(c: DropDownListComponent) => country.current = c} width='95%' placeholder='Country/Region *' name='country' floatLabelType="Always" dataSource={['USA']} value="USA" data-msg-containerid="errorForCountry" />
                                             <div id="errorForCountry" />
                                         </div>
                                     </div>
@@ -961,10 +961,10 @@ function HotelBook() {
                                     <div className='e-semi-header-text'>Room details</div>
                                     <div className='e-flex-layout e-booking-details-separator'>
                                         <div className='e-info-flex-width-applier'>
-                                            <NumericTextBoxComponent ref={c => person.current = c} width='75%' placeholder={'No of person (capacity: ' + selectedRoom.Capacity + ')'} floatLabelType='Always' value={1} min={1} max={selectedRoom.Capacity} />
+                                            <NumericTextBoxComponent ref={(c: NumericTextBoxComponent) => person.current = c} width='95%' placeholder={'No of person (capacity: ' + selectedRoom.Capacity + ')'} floatLabelType='Always' value={1} min={1} max={selectedRoom.Capacity} />
                                         </div>
                                         <div className='e-info-flex-width-applier'>
-                                            <NumericTextBoxComponent ref={e => extraBed.current = e} width='75%' placeholder={'No of extra bed (capacity: ' + selectedRoom.ExtraBed + ' and per bed cost: $' + selectedRoom.ExtraBedCost + ')'} floatLabelType='Always' value={0} min={0} max={selectedRoom.ExtraBed} change={extraBedChange} />
+                                            <NumericTextBoxComponent ref={(e: NumericTextBoxComponent) => extraBed.current = e} width='95%' placeholder={'No of extra bed (capacity: ' + selectedRoom.ExtraBed + ' and per bed cost: $' + selectedRoom.ExtraBedCost + ')'} floatLabelType='Always' value={0} min={0} max={selectedRoom.ExtraBed} change={extraBedChange} />
                                         </div>
                                     </div>
                                 </div>
@@ -1017,15 +1017,18 @@ function HotelBook() {
                 </div>
             }
             <div className='e-print-info' style={{ display: showPrintInfo ? 'block' : 'none' }}>
-                <DialogComponent width='90%' height='75%' visible={showPrintInfo} close={closePrintInfo} isModal={true} target='.e-print-info' header='Hotel room booked successfully!' showCloseIcon={true}>
+                <DialogComponent cssClass='e-dialog-print-info' width='90%' height='80%' visible={showPrintInfo} close={closePrintInfo} isModal={true} target='.e-print-info' header='Hotel room booked successfully!' showCloseIcon={true} footerTemplate={() => {
+                    return (
+                        <div className='e-flex-layout'>
+                            <div className='e-flex-spacer'></div>
+                            <ButtonComponent cssClass='e-primary e-outline' onClick={printInformation}>Print</ButtonComponent>
+                        </div>
+                    )
+                }}>
                     <div className="dialogContent">
                         {showPrintInfo && <div className='e-print-info-container'>
-                            <div className='e-flex-layout'>
-                                <div className='e-flex-spacer'></div>
-                                <ButtonComponent cssClass='e-primary e-outline' onClick={printInformation}>Print</ButtonComponent>
-                            </div>
-                            <div className='e-header-text e-light-blue-border-bottom e-print-info-separator'>Personal Information</div>
-                            <GridComponent ref={g => personalInfoGrid.current = g}
+                            <div className='e-print-info-separator'>Personal Information</div>
+                            <GridComponent ref={(g: GridComponent) => personalInfoGrid.current = g}
                                 width={'100%'}
                                 dataSource={[printInfo.current]}
                                 allowTextWrap={true}
@@ -1039,8 +1042,8 @@ function HotelBook() {
                                 </ColumnsDirective>
                                 <Inject services={[Print]} />
                             </GridComponent>
-                            <div className='e-header-text e-light-blue-border-bottom e-print-info-separator'>Room Information</div>
-                            <GridComponent ref={g => hotelInfoGrid.current = g} width={'100%'} dataSource={[printInfo.current]} allowTextWrap={true} enableHover={false} allowSelection={false}>
+                            <div className='e-print-info-separator e-print-info-separator-margin-top '>Room Information</div>
+                            <GridComponent ref={(g: GridComponent) => hotelInfoGrid.current = g} width={'100%'} dataSource={[printInfo.current]} allowTextWrap={true} enableHover={false} allowSelection={false}>
                                 <ColumnsDirective>
                                     <ColumnDirective field='HotelData.HotelName' headerText='Hotel name' width={120} customAttributes={{ class: 'e-grid-hotel-name' }} />
                                     <ColumnDirective field='HotelData.RoomName' headerText='Room name' width={120} customAttributes={{ class: 'e-grid-room-name' }} />
