@@ -7,7 +7,7 @@ const path = require("path");
 
 module.exports = {
   entry: {
-    index: glob.sync("./src/**/**/*.tsx")
+    index: "./src/common/index.tsx"
   },
   target: "web",
   module: {
